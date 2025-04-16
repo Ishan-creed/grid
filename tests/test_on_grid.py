@@ -1,7 +1,8 @@
-# tests/test_on_grid.py
 import pytest
 from selenium import webdriver
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.edge.options import Options as EdgeOptions
 
 @pytest.mark.parametrize("browser", ["chrome", "firefox", "edge"])
 def test_on_grid(browser, selected_browser):
@@ -9,19 +10,29 @@ def test_on_grid(browser, selected_browser):
         pytest.skip(f"Skipping test for browser: {browser}")
 
     grid_url = "http://localhost:4444/wd/hub"
+    
     if browser == "chrome":
-        capabilities = DesiredCapabilities.CHROME.copy()
+        options = ChromeOptions()
     elif browser == "firefox":
-        capabilities = DesiredCapabilities.FIREFOX.copy()
+        options = FirefoxOptions()
     elif browser == "edge":
-        capabilities = DesiredCapabilities.EDGE.copy()
+        options = EdgeOptions()
     else:
         raise ValueError("Unsupported browser")
+
+    # Remove `--headless` to run in visible mode
+    # Add Docker-compatible options
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")  # Helps avoid rendering issues in Docker
     
     driver = webdriver.Remote(
         command_executor=grid_url,
-        desired_capabilities=capabilities
+        options=options
     )
-    driver.get("https://google.com")
-    assert "Google" in driver.title
-    driver.quit()
+    
+    try:
+        driver.get("https://google.com")
+        assert "Google" in driver.title
+    finally:
+        driver.quit()
