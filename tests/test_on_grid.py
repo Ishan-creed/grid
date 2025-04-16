@@ -2,6 +2,12 @@ import pytest
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
+# Add this function to register the custom command line option
+def pytest_addoption(parser):
+    parser.addoption(
+        "--browser", action="store", default=None, help="Specify browser: chrome, firefox, or edge"
+    )
+
 # Fixture to obtain the selected browser from the CLI
 @pytest.fixture(scope="session")
 def selected_browser(request):
