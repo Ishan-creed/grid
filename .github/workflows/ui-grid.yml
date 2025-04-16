@@ -34,4 +34,4 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run UI Tests
-        run: pytest tests/test_on_grid.py browser=${{ matrix.browser }}
+        run: pytest tests/test_on_grid.py --browser=${{ matrix.browser }}
